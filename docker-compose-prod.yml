@@ -4,17 +4,17 @@ services:
     users:
         build:
             context: ./services/users
-            dockerfile: Dockerfile
+            dockerfile: Dockerfile-prod
 
         #volumes used to mount the code into the container which
         #helps when developing by updating the container whenever
         #a change is made to the source code
-        volumes:
-            - './services/users:/usr/src/app'
+#        volumes:
+#            - './services/users:/usr/src/app'
         expose:
             - 5000
         environment:
-            - FLASK_ENV=development
+            - FLASK_ENV=production
             - APP_SETTINGS=project.config.DevelopmentConfig
             - DATABASE_URL=postgres://postgres:postgres@users-db:5432/users_dev
             - DATABASE_TEST_URL=postgres://postgres:postgres@users-db:5432/users_test
@@ -22,12 +22,11 @@ services:
         depends_on:
             - users-db
 
-
     users-db:
         build:
             context: ./services/users/project/db
             dockerfile: Dockerfile
-        expose:
+        espose:
             - 5432
         environment:
             - POSTGRES_USER=postgres
@@ -36,9 +35,9 @@ services:
     nginx:
         build:
             context: ./services/nginx
-            dockerfile: Dockerfile
-        restart: always
-        ports:
-            - 80:80
-        depends_on:
-            - users
+            dockerfile: Dockerfile-prod
+            restart: always
+            ports:
+                - 80:80
+            depends_on:
+                - users

@@ -1,9 +1,53 @@
 import os
-from flask import Flask, jsonify
-from flask_restful import Resource, Api
+#from flask import Flask, jsonify
+#from flask_restful import Resource, Api
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
 
+
+
+#the database object
+db = SQLAlchemy()
+
+
+
+def create_app(script_info=None):
+    
+    #the flask object
+    app = Flask(__name__)
+
+    #the configration
+    app_settings = os.getenv('APP_SETTINGS')
+    app.config.from_object(app_settings)
+
+    #the blueprints
+    from project.api.users import users_blueprint
+    app.register_blueprint(users_blueprint)
+
+    #the cli context for the flask and database objects
+    @app.shell_context_processor
+    def ctx():
+        return {'app': app, 'db': db}
+
+
+    return app
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+"""
 
 #the flask object
 app = Flask(__name__)
@@ -18,7 +62,7 @@ app.config.from_object(app_settings)
 #the database
 db = SQLAlchemy(app)
 
-print("and here we are")
+
 
 #the database model(structure)
 class User(db.Model):
@@ -43,3 +87,5 @@ class UsersPing(Resource):
 
 #the page to display and the route
 api.add_resource(UsersPing, '/users/ping')
+
+"""

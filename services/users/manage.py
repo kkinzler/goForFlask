@@ -1,8 +1,39 @@
+import sys
+import unittest
+
 from flask.cli import FlaskGroup
-from project import app
+from project import create_app, db
+from project.api.models import User
+
+app = create_app()
+cli = FlaskGroup(create_app=create_app)
 
 
 cli = FlaskGroup(app)
+
+
+@cli.command('recreate_db')
+def recreate_db():
+    db.drop_all()
+    db.create_all()
+    db.session.commit()
+
+@cli.command()
+def test():
+    """runs the tests without code coverage...whatever that means"""
+    tests = unittest.TestLoader().discover('project/tests', pattern='test*.py')
+    result = unittest.TextTestRunner(verbosity=2).run(tests)
+    if result.wasSuccessful():
+        return 0
+    sys.exit(result)
+
+@cli.command('seed_db')
+def seed_db():
+    """the seed the database cli"""
+    db.session.add(User(username='kristopher', email='kris@kinzler.com'))
+    db.session.add(User(username='track', email='track@field.com'))
+    db.session.commit()
+
 
 if __name__ == '__main__':
     cli()
